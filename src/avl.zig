@@ -297,7 +297,9 @@ test "remove node with one child" {
     try t.insert(5);
 
     try testing.expect(t.remove(10));
+    try testing.expect(!t.contains(10));
     try testing.expect(t.contains(5));
+    try testing.expectEqual(@as(usize, 3), t.size);
     try testing.expect(isBalanced(t.root));
 }
 
@@ -354,6 +356,12 @@ test "stays balanced after random inserts and removes" {
 
     try testing.expect(isBalanced(t.root));
 
-    for (inserted.items[0..100]) |v| _ = t.remove(v);
+    const size_before = t.size;
+    var removed_count: usize = 0;
+    for (inserted.items[0..100]) |v| {
+        if (t.remove(v)) removed_count += 1;
+    }
+    try testing.expect(removed_count > 0);
+    try testing.expectEqual(size_before - removed_count, t.size);
     try testing.expect(isBalanced(t.root));
 }
